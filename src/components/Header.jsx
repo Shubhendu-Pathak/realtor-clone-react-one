@@ -42,9 +42,9 @@ function pathMatchRoute(route) {
             </li>
             <li
               className={`cursor-pointer py-3 text-sm font-semibold text-gray-400 border-b-[3px]  ${
-                (pathMatchRoute("/sign-in") || pathMatchRoute("/profile")) ? "text-black border-b-red-500":"border-b-transparent"
+                (pathMatchRoute("/sign-in")) ? "text-black border-b-red-500":"border-b-transparent"
               }`}
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate("/sign-in")}
             >
               Sign In
             </li>
