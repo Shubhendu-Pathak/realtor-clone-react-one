@@ -54,7 +54,7 @@ function ForgotPassword() {
                   className='text-blue-600 hover:text-blue-800 transition duration-200 ease-in-out ml-1
                   '
                 >
-               Send Reset password
+            Sign in instead
                 </Link>
               </p>
             </div>
@@ -62,7 +62,7 @@ function ForgotPassword() {
              className='w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-lg hover:bg-blue-700 transition duration-150 ease-in-out active:bg-blue-800'
               type="submit"
             >
-              Sign in
+             Send reset password
             </button>
             <div className='my-4 flex before:border-t before:flex-1 items-center before:border-gray-300  after:border-t after:flex-1 after:border-gray-300'>
               <p className='text-center font-semibold mx-4' >OR</p>
