@@ -1,7 +1,24 @@
-import React,{useState} from 'react'
+import { useState } from "react";
+import Spinner from "../components/Spinner";
+import { toast } from "react-toastify";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { getAuth } from "firebase/auth";
+import { v4 as uuidv4 } from "uuid";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 function CreateListing() {
 
+  const navigate = useNavigate();
+  const auth = getAuth();
+  const [geolocationEnabled, setGeolocationEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 const [formData,setFormData]= useState({
   type:"rent",
   name:"",
@@ -13,25 +30,75 @@ const [formData,setFormData]= useState({
 description:'',
 offer:true,
 regularPrice:0,
-discountedPrice:0
+discountedPrice:0,
+latitude: 0,
+longitude: 0,
+images:{}
+
 })
-const {type,name,bedrooms,bathrooms,parking,furnished,address,description,offer,regularPrice,discountedPrice} = formData
+const {type,name,bedrooms,bathrooms,parking,furnished,address,description,offer,regularPrice,discountedPrice,latitude,longitude,images} = formData
 
-function onChange(){
+function onChange(e){
+let boolean = null
+if(e.target.value==="true"){
+  boolean = true
+}
+if(e.target.value==="false"){
+  boolean = false
+}
+// files
+if(e.target.files){
+  setFormData((prevState)=>(
+    {
+      ...prevState,images:e.target.files
+    }
+  ))
+}
+// text / boolean / number
+if(!e.target.files){
+  setFormData((prevState)=>({
+    ...prevState,[e.target.id]:boolean ?? e.target.value
+  }))
+}
 
+}
+
+function onSubmit(e){
+e.preventDefault()
+setLoading(true);
+if (+discountedPrice >= +regularPrice) {
+  setLoading(false);
+  toast.error("Discounted price needs to be less than regular price");
+  return;
+}
+if (images.length > 6) {
+  setLoading(false);
+  toast.error("maximum 6 images are allowed");
+  return;
+}
+let geolocation = {}
+let location
+if(geolocationEnabled){
+  
+}
+
+}
+
+if(loading===true){
+  return <Spinner/>
 }
 
   return (
    <main>
     <h1 className='text-3xl text-center mt-6 font-bold'>Create a Living</h1>
-    <form action="">
+    <form action="" onSubmit={onSubmit}>
     <p className="text-lg mt-6 font-semibold">Sell / Rent</p>
     <div className="flex">
           <button
             type="button"
             id="type"
             value="sale"
-            // onClick={onChange}
+            onClick={onChange}
             className={`mr-3 px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
               type === "rent"
                 ? "bg-white text-black"
@@ -44,7 +111,7 @@ function onChange(){
             type="button"
             id="type"
             value="rent"
-            // onClick={onChange}
+            onClick={onChange}
             className={`ml-3 px-7 py-3 font-medium text-sm uppercase shadow-md rounded hover:shadow-lg focus:shadow-lg active:shadow-lg transition duration-150 ease-in-out w-full ${
               type === "sale"
                 ? "bg-white text-black"
@@ -154,6 +221,36 @@ function onChange(){
           required
           className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
         />
+           {!geolocationEnabled && (
+          <div className="flex space-x-6 justify-start mb-6">
+            <div className="">
+              <p className="text-lg font-semibold">Latitude</p>
+              <input
+                type="number"
+                id="latitude"
+                value={latitude}
+                onChange={onChange}
+                required
+                min="-90"
+                max="90"
+                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600 text-center"
+              />
+            </div>
+            <div className="">
+              <p className="text-lg font-semibold">Longitude</p>
+              <input
+                type="number"
+                id="longitude"
+                value={longitude}
+                onChange={onChange}
+                required
+                min="-180"
+                max="180"
+                className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:bg-white focus:text-gray-700 focus:border-slate-600 text-center"
+              />
+            </div>
+          </div>
+        )}
          <p className="text-lg font-semibold">Description</p>
         <textarea
           type="text"
